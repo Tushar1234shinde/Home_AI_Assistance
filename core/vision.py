@@ -6,13 +6,15 @@ def capture_frame():
     # Initialize the webcam
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
-        raise Exception("Could not open webcam")
+        print("Warning: Could not open webcam")
+        return None
     
     # Capture a single frame
     ret, frame = cap.read()
     if not ret:
+        print("Warning: Could not capture frame")
         cap.release()
-        raise Exception("Could not capture frame")
+        return None
     
     # Release the webcam
     cap.release()

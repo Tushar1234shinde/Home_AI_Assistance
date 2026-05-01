@@ -1,25 +1,40 @@
 import cv2
 import tempfile
 import os
+import atexit
+
+_camera = None
+
+
+def release_camera():
+    global _camera
+    if _camera is not None:
+        _camera.release()
+        _camera = None
+
+
+def get_camera():
+    global _camera
+    if _camera is None:
+        _camera = cv2.VideoCapture(0)
+    return _camera
+
+
+atexit.register(release_camera)
 
 def capture_frame():
-    # Initialize the webcam
-    cap = cv2.VideoCapture(0)
+    cap = get_camera()
     if not cap.isOpened():
         print("Warning: Could not open webcam")
+        release_camera()
         return None
-    
-    # Capture a single frame
+
     ret, frame = cap.read()
     if not ret:
         print("Warning: Could not capture frame")
-        cap.release()
+        release_camera()
         return None
-    
-    # Release the webcam
-    cap.release()
-    
-    # Save the frame to a temporary file
+
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.jpg')
     cv2.imwrite(temp_file.name, frame)
     

@@ -1,21 +1,31 @@
 import speech_recognition as sr
 
+_recognizer = sr.Recognizer()
+_microphone = None
+_ambient_calibrated = False
+
+
+def get_microphone():
+    global _microphone
+    if _microphone is None:
+        _microphone = sr.Microphone()
+    return _microphone
+
+
 def listen_and_transcribe():
-    # Initialize recognizer
-    recognizer = sr.Recognizer()
-    
-    # Use the default microphone
-    with sr.Microphone() as source:
+    global _ambient_calibrated
+
+    with get_microphone() as source:
         print("Listening...")
-        # Adjust for ambient noise
-        recognizer.adjust_for_ambient_noise(source)
-        
-        # Listen for audio
-        audio = recognizer.listen(source)
-        
+
+        if not _ambient_calibrated:
+            _recognizer.adjust_for_ambient_noise(source)
+            _ambient_calibrated = True
+
+        audio = _recognizer.listen(source)
+
         try:
-            # Transcribe using Google Speech Recognition
-            text = recognizer.recognize_google(audio)
+            text = _recognizer.recognize_google(audio)
             print(f"You said: {text}")
             return text
         except sr.UnknownValueError:

@@ -1,12 +1,16 @@
 import pyttsx3
 
-def speak_text(text):
-    # Initialize the engine
+_engine = None
+
+
+def get_engine():
+    global _engine
+    if _engine is not None:
+        return _engine
+
     engine = pyttsx3.init()
-    
-    # Set properties for female voice
+
     voices = engine.getProperty('voices')
-    # Try to find a female voice
     female_voice = None
     for voice in voices:
         if 'female' in voice.name.lower() or 'zira' in voice.name.lower() or 'hazel' in voice.name.lower():
@@ -14,11 +18,14 @@ def speak_text(text):
             break
     if female_voice:
         engine.setProperty('voice', female_voice.id)
-    
-    # Set speech rate
+
     engine.setProperty('rate', 180)
-    
-    # Speak the text
+    _engine = engine
+    return _engine
+
+
+def speak_text(text):
+    engine = get_engine()
     engine.say(text)
     engine.runAndWait()
 
